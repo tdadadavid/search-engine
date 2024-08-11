@@ -1,1 +1,1 @@
-* We can use MongoDB to store the results from the indexer
+* We can use Postgresql to store the results from the indexer
