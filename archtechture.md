@@ -7,4 +7,26 @@
 * [Build Search Engine 3](https://www.quora.com/How-do-I-make-a-small-web-search-engine-as-a-mini-project-I-dont-want-to-create-something-advanced-but-something-functional)
 * [Must read!!!](https://www.quora.com/How-do-you-build-a-search-engine-from-scratch-What%E2%80%99s-the-best-technology-stack-for-this)
 
+## Algorithms we need to search out
+
+* tf-idf (term frequency-inverse document frequency)
+* Stemming
+
+## MY chatGPT conversation as of now.
+
+For the indexer and match function (Query Parser) we have 2 major algorithms we can use
+
+* Stemming (simpler both does not work everytime )
+* Lemmanization (harder to implement but enhances both systems) (I think we should go with this.) ([Package](https://nlp.stanford.edu/))
+  * [Repository](https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp)
+  * [ikvm](https://github.com/ikvmnet/ikvm-maven)
+
+## Brainstorming with ChatGpt
+
+* [Chat](https://chatgpt.com/c/a2f771b1-b1ea-4760-b54d-a3f3ac38660b)
+
 ## Any thought is welcomed
+
+## Might come in handy
+
+* https://stackoverflow.com/questions/44479312/stanford-nlp-corenlp-net
