@@ -12,7 +12,7 @@
 * tf-idf (term frequency-inverse document frequency)
 * Stemming
 
-## MY chatGPT conversation as of now.
+## Match Function and Indexer
 
 For the indexer and match function (Query Parser) we have 2 major algorithms we can use
 
