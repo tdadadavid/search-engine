@@ -1,0 +1,1 @@
+* We can use MongoDB to store the results from the indexer
