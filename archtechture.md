@@ -17,6 +17,7 @@
 For the indexer and match function (Query Parser) we have 2 major algorithms we can use
 
 * Stemming (simpler both does not work everytime )
+  * if we choose to go with Stemmer then check this out ([Potter Stemmer](https://tartarus.org/martin/PorterStemmer/))
 * Lemmanization (harder to implement but enhances both systems) (I think we should go with this.) ([Package](https://nlp.stanford.edu/))
   * [Repository](https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp)
   * [ikvm](https://github.com/ikvmnet/ikvm-maven)
