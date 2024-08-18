@@ -13,6 +13,10 @@ namespace SearchEngine.Models
     [BsonElement("url")]
     public string url { get; set; }
 
+    [BsonElement("content")]
+
+    public List<string> content { get; set; } = new List<string>();
+
     [BsonElement("isIndexed")]
     public bool isIndexed { get; set; }
 
