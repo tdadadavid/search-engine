@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react';
 import { FaSearch } from "react-icons/fa";
 
-const SearchBar = () => (
+const SearchBar = () => {
   
   const [activeSearch, setActiveSearch] = useState([])
 
@@ -37,6 +37,6 @@ const SearchBar = () => (
       }
     </form>
   )
-);
+};
 
 export default SearchBar;
