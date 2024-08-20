@@ -1,12 +1,14 @@
 using SearchEngine.Models;
-using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver;
+using SearchEngine.Contexts;
+using SearchEngine.Api.Core.Interfaces;
 
-namespace SearchEngine.Services
+namespace SearchEngine.Api.Core.Services
 {
-    public class DocumentService : IDocumentService
+    public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
 
@@ -25,7 +27,7 @@ namespace SearchEngine.Services
             return await _context.Documents.Find(d => !d.isIndexed).ToListAsync();
         }
 
-        public async Task UpdateDocumentIndexStatusAsync(string docId)
+        public async Task UpdateDocumentIndexStatus(string docId)
         {
             var filter = Builders<Document>.Filter.Eq(d => d.Id, docId);
             var update = Builders<Document>.Update.Set(d => d.isIndexed, true);
@@ -70,7 +72,7 @@ namespace SearchEngine.Services
                 }
 
                 // Mark document as indexed
-                await UpdateDocumentIndexStatusAsync(document.Id);
+                await UpdateDocumentIndexStatus(document.Id);
             }
         }
 
