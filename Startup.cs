@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SearchEngine.Contexts;
-using SearchEngine.Services;
+using SearchEngine.Api.Core.Services;
 using SearchEngine.CronJobs;
+using SearchEngine.Api.Core.Interfaces;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -44,13 +46,17 @@ namespace SearchEngine
             });
 
             // Add Quartz.NET services
-            services.AddSingleton<IJobFactory, JobFactory>();
+            // services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<DocumentIndexingJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(DocumentIndexingJob),
                 cronExpression: "0 0/5 * * * ?")); // Every 5 minutes
             services.AddHostedService<CronService>();
+            services.Configure<FormOptions>(options =>
+            {
+              options.MultipartBodyLengthLimit = 52428800;
+            });
 
             // Add MVC controllers
             services.AddControllers();

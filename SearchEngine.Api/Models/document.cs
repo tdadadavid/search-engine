@@ -20,5 +20,8 @@ namespace SearchEngine.Models
     [BsonElement("isIndexed")]
     public bool isIndexed { get; set; }
 
+    [BsonElement("type")] // pptx, docx, doc.
+    public bool type { get; set; }
+
 }
 }
