@@ -1,9 +1,9 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using search.Models;
+// using System.Diagnostics;
+// using Microsoft.AspNetCore.Mvc;
+// using search.Models;
 
-namespace search.Controllers;
+// namespace search.Controllers;
 
-public class HomeController : Controller
-{
-}
+// public class HomeController : Controller
+// {
+// }

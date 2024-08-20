@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using SearchEngine.Contexts;
 
 namespace SearchEngine.Services
 {
@@ -40,7 +41,7 @@ namespace SearchEngine.Services
             foreach (var document in unIndexedDocuments)
             {
                 // Get base words from document (assumed to be provided by an external algorithm)
-                var baseWords = GetBaseWordsFromDocument(document);
+                var baseWords = await GetBaseWordsFromDocument(document);
 
                 foreach (var word in baseWords)
                 {
@@ -54,7 +55,7 @@ namespace SearchEngine.Services
                     var allDocuments = await _context.Documents.Find(_ => true).ToListAsync();
                     foreach (var doc in allDocuments)
                     {
-                        var positions = GetWordPositionsInDocument(doc.content, word);
+                        var positions = await GetWordPositionsInDocument(doc.content, word);
                         if (positions.Any())
                         {
                             wordMatch.Matches.Add(new Match
@@ -74,15 +75,14 @@ namespace SearchEngine.Services
             }
         }
 
-        // Simulated method to extract base words (assumed to be provided)
-        private List<string> GetBaseWordsFromDocument(Document document)
+
+        public async Task<List<string>> GetBaseWordsFromDocument(Document document)
         {
-            // Assume this method returns a list of base words
-            return document.content; // Replace with actual implementation
+
+            return document.content;
         }
 
-        // Method to get positions of a word in the document content
-        private List<int> GetWordPositionsInDocument(List<string> content, string word)
+        public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
         {
             var positions = new List<int>();
             for (int i = 0; i < content.Count; i++)
