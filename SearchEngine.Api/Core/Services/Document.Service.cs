@@ -1,7 +1,4 @@
 using SearchEngine.Models;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Driver;
 using SearchEngine.Contexts;
 using SearchEngine.Api.Core.Interfaces;
@@ -24,13 +21,13 @@ namespace SearchEngine.Api.Core.Services
 
         public async Task<List<Document>> GetUnIndexedDocumentsAsync()
         {
-            return await _context.Documents.Find(d => !d.isIndexed).ToListAsync();
+            return await _context.Documents.Find(d => !d.IsIndexed).ToListAsync();
         }
 
         public async Task UpdateDocumentIndexStatus(string docId)
         {
-            var filter = Builders<Document>.Filter.Eq(d => d.Id, docId);
-            var update = Builders<Document>.Update.Set(d => d.isIndexed, true);
+            var filter = Builders<Document>.Filter.Eq(d => d.ID, docId);
+            var update = Builders<Document>.Update.Set(d => d.IsIndexed, true);
             await _context.Documents.UpdateOneAsync(filter, update);
         }
 
@@ -56,12 +53,12 @@ namespace SearchEngine.Api.Core.Services
                     var allDocuments = await _context.Documents.Find(_ => true).ToListAsync();
                     foreach (var doc in allDocuments)
                     {
-                        var positions = GetWordPositionsInDocument(doc.content, word);
+                        var positions = GetWordPositionsInDocument(doc.Content, word);
                         if (positions.Any())
                         {
                             wordMatch.Matches.Add(new Match
                             {
-                                DocId = doc.Id,
+                                DocId = doc.ID,
                                 Positions = positions
                             });
                         }
@@ -72,7 +69,7 @@ namespace SearchEngine.Api.Core.Services
                 }
 
                 // Mark document as indexed
-                await UpdateDocumentIndexStatus(document.Id);
+                await UpdateDocumentIndexStatus(document.ID);
             }
         }
 
@@ -80,7 +77,7 @@ namespace SearchEngine.Api.Core.Services
         private List<string> GetBaseWordsFromDocument(Document document)
         {
             // Assume this method returns a list of base words
-            return document.content; // Replace with actual implementation
+            return document.Content; // Replace with actual implementation
         }
 
         // Method to get positions of a word in the document content

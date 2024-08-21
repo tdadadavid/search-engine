@@ -11,6 +11,8 @@ using SearchEngine.Api.Core.Interfaces;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
+using search.SearchEngine.Api.Core.Cronjobs;
+using MongoDB.Driver;
 
 namespace SearchEngine
 {
@@ -30,6 +32,19 @@ namespace SearchEngine
 
             // Add MongoDBContext
             services.AddSingleton<MongoDBContext>();
+            services.AddSingleton<CloudStoreManager>();
+
+            services.AddSingleton<IMongoClient, MongoClient>(sp =>
+            {
+                var connectionString = Configuration.GetConnectionString("MongoDb");
+                return new MongoClient(connectionString);
+            });
+
+            services.AddScoped(sp =>
+            {
+                var client = sp.GetRequiredService<IMongoClient>();
+                return client.GetDatabase("search"); // Replace with your database name
+            });
 
             // Add Document Service
             services.AddSingleton<IDocumentService, DocumentService>();
@@ -46,7 +61,8 @@ namespace SearchEngine
             });
 
             // Add Quartz.NET services
-            // services.AddSingleton<IJobFactory, JobFactory>();
+            // Add Quartz.NET services
+            services.AddSingleton<IJobFactory, JobFactory>(); // Ensure you have a JobFactory implementation
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<DocumentIndexingJob>();
             services.AddSingleton(new JobSchedule(

@@ -1,6 +1,5 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using SearchEngine.Api.Core.Interfaces;
 
 namespace SearchEngine.Api.Core.Services
 {
@@ -8,39 +7,38 @@ namespace SearchEngine.Api.Core.Services
   public class CloudStoreManager
   {
     private readonly Cloudinary _cloudinary;
+    private readonly IConfiguration _configuration;
 
-    public CloudStoreManager()
+
+    public CloudStoreManager(IConfiguration configuration)
     {
+      var cloudinaryConfig = new CloudinaryConfig();
+      configuration.GetSection("CloudinaryConfig").Bind(cloudinaryConfig);
 
       var account = new Account(
-        CloudinaryConfig.CloudName,
-        CloudinaryConfig.ApiKey,
-        CloudinaryConfig.ApiSecret
+        cloudinaryConfig.CloudName,
+        cloudinaryConfig.ApiKey,
+        cloudinaryConfig.ApiSecret
       );
 
-      Cloudinary cloudinary = new Cloudinary(account);
+      _cloudinary = new Cloudinary(account);
 
     }
 
-    public Task UploadFileToCloudinary(RawUploadParams uploadParams)
+    public string UploadFileToCloudinary(RawUploadParams uploadParams)
     {
       var uploadResult = _cloudinary.Upload(uploadParams);
-      uploadResult.SecureUrl.AbsoluteUri;
-      return Task.Run(() =>
-        {
-          Console.WriteLine("Task is running...");
-          Console.WriteLine(uploadResult.SecureUrl.AbsoluteUri);
-        });
+      return uploadResult.SecureUrl.AbsoluteUri;
     }
 
   }
 
 
   public class CloudinaryConfig
-  {
-    public static string CloudName => Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
-    public static string ApiKey => Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
-    public static string ApiSecret => Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
-  }
+{
+    public string CloudName { get; set; }
+    public string ApiKey { get; set; }
+    public string ApiSecret { get; set; }
+}
 
 }

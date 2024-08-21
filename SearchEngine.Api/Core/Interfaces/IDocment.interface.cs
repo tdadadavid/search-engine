@@ -9,5 +9,7 @@ namespace SearchEngine.Api.Core.Interfaces
         Task AddDocumentAsync(Document document);
         Task<List<Document>> GetUnIndexedDocumentsAsync();
         Task UpdateDocumentIndexStatus(string docId);
+
+    Task IndexDocumentsAsync();
     }
 }
