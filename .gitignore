@@ -5,3 +5,4 @@ Debug/
 Release/
 wwwroot/
 *.lock
+node_modules/

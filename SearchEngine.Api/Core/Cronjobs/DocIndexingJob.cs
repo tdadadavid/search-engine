@@ -1,14 +1,16 @@
 using Quartz;
-using SearchEngine.Services;
 using System.Threading.Tasks;
+using SearchEngine.Api.Core.Services;
+using SearchEngine.Api.Core.Interfaces;
+
 
 namespace SearchEngine.CronJobs
 {
     public class DocumentIndexingJob : IJob
     {
-        private readonly DocumentService _documentService;
+        private readonly IDocumentService _documentService;
 
-        public DocumentIndexingJob(DocumentService documentService)
+        public DocumentIndexingJob(IDocumentService documentService)
         {
             _documentService = documentService;
         }

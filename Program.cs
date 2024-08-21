@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using dotenv.net;
 
 namespace SearchEngine
 {
@@ -25,15 +26,17 @@ namespace SearchEngine
             finally
             {
                 Log.CloseAndFlush();
+            
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseSerilog() // Use Serilog for logging
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+    public static IHostBuilder CreateHostBuilder(string[] args)
+    {
+      return Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+              webBuilder.UseStartup<Startup>();
+            });
     }
+  }
 }
