@@ -8,20 +8,20 @@ namespace SearchEngine.Models
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public string ID { get; set; }
 
     [BsonElement("url")]
-    public string url { get; set; }
+    public required string Url { get; set; }
 
     [BsonElement("content")]
 
-    public List<string> content { get; set; } = new List<string>();
+    public List<string> Content { get; set; } = new List<string>();
 
     [BsonElement("isIndexed")]
-    public bool isIndexed { get; set; }
+    public bool IsIndexed { get; set; }
 
     [BsonElement("type")] // pptx, docx, doc.
-    public bool type { get; set; }
+    public string Type { get; set; }
 
 }
 }

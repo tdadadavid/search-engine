@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Packaging;
 using SearchEngine.Api.Core.FileManager;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ public class DocxFileParser : IFileExtractorEngine
       {
           using (WordprocessingDocument doc = WordprocessingDocument.Open(filePath, false))
           {
-            return doc.MainDocumentPart.Document.Body.InnerText;
+            return doc.MainDocumentPart!.Document!.Body!.InnerText;
           }
       });
 
