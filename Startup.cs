@@ -45,13 +45,12 @@ namespace SearchEngine
                 });
             });
 
-            // Add Quartz.NET services
-            // services.AddSingleton<IJobFactory, JobFactory>();
+            services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<DocumentIndexingJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(DocumentIndexingJob),
-                cronExpression: "0 0/5 * * * ?")); // Every 5 minutes
+                cronExpression: "0 0/5 * * * ?")); 
             services.AddHostedService<CronService>();
             services.Configure<FormOptions>(options =>
             {
