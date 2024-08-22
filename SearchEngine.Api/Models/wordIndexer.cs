@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace SearchEngine.Models
 {
+    /// <summary>
+    /// Represents an index entry for a word and its occurrences in documents.
+    /// </summary>
     public class WordIndexer
 {
     [BsonId]

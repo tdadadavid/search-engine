@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace SearchEngine.Models
 {
+    /// <summary>
+    /// Represents a document to be managed and indexed within the search engine.
+    /// </summary>
     public class Document
 {
     [BsonId]

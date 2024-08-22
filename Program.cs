@@ -5,8 +5,15 @@ using dotenv.net;
 
 namespace SearchEngine
 {
+    /// <summary>
+    /// The entry point for the application.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments.</param>
         public static void Main(string[] args)
         {
             // Configure Serilog for logging
@@ -30,6 +37,11 @@ namespace SearchEngine
             }
         }
 
+    /// <summary>
+    /// Creates and configures a <see cref="IHostBuilder"/> for the application.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    /// <returns>An <see cref="IHostBuilder"/> instance.</returns
     public static IHostBuilder CreateHostBuilder(string[] args)
     {
       return Host.CreateDefaultBuilder(args)
