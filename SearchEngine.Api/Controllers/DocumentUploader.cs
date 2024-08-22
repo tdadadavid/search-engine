@@ -6,8 +6,7 @@ using SearchEngine.Api.Core.Services;
 using MongoDB.Driver;
 using SearchEngine.Models;
 
-using SearchEngine.Api.Core.FileManager;
-using MongoDB.Bson;
+using SearchEngine.Api.Core.Files;
 
 
 namespace SearchEngine.Api.Controllers { }
@@ -18,9 +17,15 @@ namespace SearchEngine.Api.Controllers { }
   public class DocumentUploader: ControllerBase {
   private readonly CloudStoreManager _cloudStore;
   private readonly IMongoCollection<Document> _documentCollection;
-  public DocumentUploader(CloudStoreManager cloudStoreManager, IMongoDatabase database) {
+  private readonly FileManager _fileManager;
+  public DocumentUploader(
+    CloudStoreManager cloudStoreManager, 
+    IMongoDatabase database,
+    FileManager manager
+    ) {
     _cloudStore = cloudStoreManager;
-    _documentCollection = database.GetCollection<Document>("Documents");;
+    _documentCollection = database.GetCollection<Document>("Documents");
+    _fileManager = manager;
   }
 
 
@@ -37,7 +42,8 @@ namespace SearchEngine.Api.Controllers { }
 
     var filePath = Path.GetTempFileName();
 
-    using (var stream = new FileStream(filePath, FileMode.Create))
+    FileStream stream;
+    using (stream = new FileStream(filePath, FileMode.Create))
     {
       file.CopyTo(stream);
     }
@@ -58,6 +64,9 @@ namespace SearchEngine.Api.Controllers { }
     };
 
     // await _documentCollection.InsertOneAsync(doc);
+
+    _fileManager.ReadDocumentContents(doc, stream);
+
 
     return Ok(new { document = doc });
   }

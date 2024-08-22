@@ -1,23 +1,17 @@
 using DocumentFormat.OpenXml.Packaging;
-using SearchEngine.Api.Core.FileManager;
+using SearchEngine.Api.Core.Files;
 using System.Threading.Tasks;
 
 public class DocxFileParser : IFileExtractorEngine
 {
-    public Task Extract(string filePath)
+    public string Extract(FileStream stream)
     {
     // Implementation for extracting DOCX files
       Console.WriteLine("Extracting DOCX...");
-
-
-      Task task = Task.Run(() =>
+      using (WordprocessingDocument doc = WordprocessingDocument.Open(stream, false))
       {
-          using (WordprocessingDocument doc = WordprocessingDocument.Open(filePath, false))
-          {
-            return doc.MainDocumentPart!.Document!.Body!.InnerText;
-          }
-      });
+        return doc.MainDocumentPart!.Document!.Body!.InnerText;
+      }
 
-      return task;
     }
 }

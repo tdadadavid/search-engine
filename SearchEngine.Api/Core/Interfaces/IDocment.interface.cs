@@ -10,6 +10,6 @@ namespace SearchEngine.Api.Core.Interfaces
         Task<List<Document>> GetUnIndexedDocumentsAsync();
         Task UpdateDocumentIndexStatus(string docId);
 
-    Task IndexDocumentsAsync();
+        Task IndexDocumentsAsync();
     }
 }

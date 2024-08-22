@@ -11,6 +11,7 @@
     <PackageReference Include="CloudinaryDotNet" Version="1.14.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.1.0" />
     <PackageReference Include="dotenv.net" Version="3.2.0" />
+    <PackageReference Include="IKVM" Version="8.10.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
     <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
@@ -18,5 +19,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
   </ItemGroup>
+
+  <!-- <ItemGroup>
+  <IkvmReference Include="~/Desktop/personal/ikvm-7.2.4630.5/lib/ikvm-api.jar" />
+</ItemGroup> -->
 
 </Project>
