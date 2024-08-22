@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace match
+namespace SearchEngine.Api.Match
 {
     class DocResult
     {

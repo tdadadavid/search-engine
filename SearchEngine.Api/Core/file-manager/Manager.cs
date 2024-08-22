@@ -7,13 +7,13 @@ namespace SearchEngine.Api.Core.FileManager
 {
   public class FileManager {
 
-    // get document 
+    // get document
     // get read all the words in the document
     // clean the data by removing stop words and punctuations.
     // using the lemmanization library get base words
     // store in the database.
 
-  
+
     public readonly HashSet<string> stopWords = LoadStopWords("../helpers/stopword.txt");
 
     public 
@@ -51,7 +51,7 @@ namespace SearchEngine.Api.Core.FileManager
 
     private static IFileExtractorEngine GetParser(string ext) {
       // this is an hard-coded files that are supported by our system as we support more we can move this to the database.
-      
+
       var extensionExtractorsRegistry = new Dictionary<string, IFileExtractorEngine>
         {
             { "application/pdf", new PPTXFileParser() },

@@ -11,7 +11,7 @@ using MongoDB.Bson;
 
 
 namespace SearchEngine.Api.Controllers { }
-  
+
 
   [Route("/api/documents")]
   [ApiController]
@@ -60,5 +60,12 @@ namespace SearchEngine.Api.Controllers { }
     // await _documentCollection.InsertOneAsync(doc);
 
     return Ok(new { document = doc });
+  }
+
+
+  public async Task<IActionResult> SearchEngine([FromBody] string query){
+
+    List<string> cleanedQuery = RemoveStopWordsAndPunctuation(query, stopWords).ToList();
+
   }
 }
