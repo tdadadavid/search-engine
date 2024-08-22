@@ -24,7 +24,7 @@ namespace SearchEngine
         public void ConfigureServices(IServiceCollection services)
         {
             // Configure MongoDB settings
-            services.Configure<MongoDBSettings>(Configuration.GetSection("ConnectionStrings:MongoDb"));
+            services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDBSettings"));
 
             // Add MongoDBContext
             services.AddSingleton<MongoDBContext>();
@@ -49,8 +49,11 @@ namespace SearchEngine
             services.AddSingleton<DocumentIndexingJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(DocumentIndexingJob),
-                cronExpression: "0 0/5 * * * ?")); 
+                cronExpression: "0/5 * * * * ?"));
             services.AddHostedService<CronService>();
+
+
+            services.AddScoped<IDocumentService, DocumentService>();
 
             // Add MVC controllers
             services.AddControllers();

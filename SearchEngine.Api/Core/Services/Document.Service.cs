@@ -36,6 +36,10 @@ namespace SearchEngine.Services
         public async Task IndexDocumentsAsync()
         {
             // Fetch unindexed documents
+            Console.WriteLine("Na Cronjob in c#");
+            Console.WriteLine("Moral lesson , anytime you have a problem, leave it then solve am for night!");
+
+
             var unIndexedDocuments = await GetUnIndexedDocumentsAsync();
 
             foreach (var document in unIndexedDocuments)
