@@ -17,11 +17,13 @@
     <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
     <PackageReference Include="Quartz" Version="3.13.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
   </ItemGroup>
 
-  <!-- <ItemGroup>
-  <IkvmReference Include="~/Desktop/personal/ikvm-7.2.4630.5/lib/ikvm-api.jar" />
-</ItemGroup> -->
+
+  <ItemGroup>
+    <Folder Include="SearchEngine.Api\Core\match\" />
+  </ItemGroup>
 
 </Project>
