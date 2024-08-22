@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using SearchEngine.Api.Core.Services;
 using MongoDB.Driver;
 using SearchEngine.Models;
-using SearchEngine.Api.Match
 using SearchEngine.Api.Core.Files;
 
 
@@ -16,18 +15,14 @@ namespace SearchEngine.Api.Controllers { }
   [ApiController]
   public class DocumentUploader: ControllerBase {
   private readonly CloudStoreManager _cloudStore;
-  // private readonly IMongoCollection<Document> _documentCollection;
-
   private readonly DocumentService _documentService;
   private readonly FileManager _fileManager;
   public DocumentUploader(
     CloudStoreManager cloudStoreManager,
-    // IMongoDatabase database,
-    DocumwnetService documentService,
+    DocumentService documentService,
     FileManager manager
     ) {
     _cloudStore = cloudStoreManager;
-    // _documentCollection = database.GetCollection<Document>("Documents");
     _fileManager = manager;
     _documentService = documentService;
 
@@ -83,7 +78,7 @@ namespace SearchEngine.Api.Controllers { }
 
     List<string> cleanedQuery = _fileManager.RemoveStopWordsAndPunctuation(query).ToList();
 
-    var matches = _fileManager.GetWordMatchesAsync(cleanedQuery);
+    var matches = await  _documentService.GetWordMatchesAsync(cleanedQuery);
 
 
     return Ok(new { matches });

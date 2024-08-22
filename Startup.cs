@@ -35,11 +35,14 @@ namespace SearchEngine
             services.AddSingleton<MongoDBContext>();
             services.AddSingleton<CloudStoreManager>();
             services.AddSingleton<FileManager>();
+      services.AddSingleton<DocumentService>();
 
-            services.AddSingleton<IMongoClient, MongoClient>(sp =>
+      services.AddSingleton<IMongoClient, MongoClient>(sp =>
             {
-                var connectionString = Configuration.GetConnectionString("MongoDb");
-                return new MongoClient(connectionString);
+                // var connectionString = Configuration.GetConnectionString("MongoDBSettings:ConnectionString");
+                return new MongoClient("mongodb://localhost:27017/NebularFinder");
+        //          var mongoDBSettings = sp.GetRequiredService<MongoDBSettings>();
+        // return new MongoClient(mongoDBSettings.ConnectionString);
             });
 
             services.AddScoped(sp =>
@@ -87,7 +90,8 @@ namespace SearchEngine
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                     app.UseStaticFiles();
+       app.UseDeveloperExceptionPage();
             }
 
             app.UseRouting();

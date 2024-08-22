@@ -3,6 +3,8 @@ using DocumentFormat.OpenXml.Packaging;
 using Quartz.Util;
 using SearchEngine.Models;
 using MongoDB.Driver;
+using SearchEngine.Api.Core.Services;
+using SearchEngine.Api.Core.Interfaces;
 
 
 namespace SearchEngine.Api.Core.Files
@@ -15,14 +17,15 @@ namespace SearchEngine.Api.Core.Files
     // using the lemmanization library get base words
     // store in the database.
 
+    private DocumentService _documentService;
 
-    private readonly IMongoCollection<Document> _documentCollection;
-  public FileManager(IMongoDatabase database) {
-    _documentCollection = database.GetCollection<Document>("Documents");
-  }
+    private readonly IServiceProvider _serviceProvider;
+  public FileManager(IServiceProvider serviceProvider) {
+      _serviceProvider = serviceProvider;
+    }
 
 
-    public readonly HashSet<string> stopWords = LoadStopWords("../helpers/stopword.txt");
+    public readonly HashSet<string> stopWords = LoadStopWords("/home/king/Desktop/personal/search/SearchEngine.Api/Core/helpers/stopword.txt");
 
     public
 
@@ -32,17 +35,23 @@ namespace SearchEngine.Api.Core.Files
     }
 
     public void ReadDocumentContents(Document document, FileStream stream){
-      var parser = GetParser(document.Type);
-      // get documet from cloudinary
-      Task.Run(() =>
-      {
-        var DocumentContents = parser.Extract(stream);
-        var filter = Builders<Document>.Filter.Eq("ID", document.ID);
+      using (var scope = _serviceProvider.CreateScope())
+        {
+            _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
+            var parser = GetParser(document.Type);
+            // get documet from cloudinary 
+            Task.Run(() =>
+            {
+              var DocumentContents = parser.Extract(stream);
+              var filter = Builders<Document>.Filter.Eq("ID", document.ID);
 
-        // Define the update operation
-        var update = Builders<Document>.Update.Set("Content", document.Content);
-        _documentCollection.UpdateOneAsync(filter, update);
-      });
+              // Define the update operation
+              var update = Builders<Document>.Update.Set("Content", document.Content);
+              _documentService.UpdateOneAsync(filter, update);
+            });
+            // Use the db instance here
+        }
+      
     }
 
     public string[] RemoveStopWordsAndPunctuation(string content)

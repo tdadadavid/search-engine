@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using SearchEngine.Models;
 using System.Linq;
 
-namespace SearchEngine.Api.Match
+namespace SearchEngine.Api.Core.Services
 {
     class DocResult
     {

@@ -1,16 +1,13 @@
 using SearchEngine.Models;
 using MongoDB.Driver;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 using SearchEngine.Contexts;
 using SearchEngine.Api.Core.Interfaces;
 using SearchEngine.Api.Core.Files;
-using System.Linq;
+
 
 namespace SearchEngine.Api.Core.Services
 {
-    public class DocumentService: IDocumentService
+  public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
     private readonly FileManager _fileManager;
@@ -18,7 +15,11 @@ namespace SearchEngine.Api.Core.Services
     public DocumentService(MongoDBContext context, FileManager fileManager)
         {
             _context = context;
-      _fileManager = fileManager;
+            _fileManager = fileManager;
+    }
+
+    public void UpdateOneAsync(FilterDefinition<Document> filter, UpdateDefinition<Document> update) {
+      _context.Documents.UpdateOneAsync(filter, update);
     }
 
         public async Task AddDocumentAsync(Document document)
@@ -106,6 +107,10 @@ namespace SearchEngine.Api.Core.Services
             }
             return positions;
         }
+
+    public Task<List<string>> GetBaseWordsFromDocument(Document document)
+    {
+      throw new NotImplementedException();
     }
 
     public async Task<List<WordIndexer>> GetWordMatchesAsync(List<string> words)
@@ -121,4 +126,7 @@ namespace SearchEngine.Api.Core.Services
         }
         return matches;
     }
+  }
+
+    
 }
