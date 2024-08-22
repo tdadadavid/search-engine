@@ -11,9 +11,7 @@ namespace SearchEngine.Api.Core.Interfaces
         Task UpdateDocumentIndexStatusAsync(string docId);
 
         Task IndexDocumentsAsync();
-
         Task<List<string>> GetBaseWordsFromDocument(Document document);
-
         Task<List<int>> GetWordPositionsInDocument(List<string> content, string word);
     }
 }

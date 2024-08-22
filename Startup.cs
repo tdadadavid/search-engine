@@ -13,6 +13,7 @@ using Quartz.Impl;
 using Quartz.Spi;
 using search.SearchEngine.Api.Core.Cronjobs;
 using MongoDB.Driver;
+using SearchEngine.Api.Core.Files;
 
 namespace SearchEngine
 {
@@ -33,6 +34,7 @@ namespace SearchEngine
             // Add MongoDBContext
             services.AddSingleton<MongoDBContext>();
             services.AddSingleton<CloudStoreManager>();
+            services.AddSingleton<FileManager>();
 
             services.AddSingleton<IMongoClient, MongoClient>(sp =>
             {
@@ -43,7 +45,7 @@ namespace SearchEngine
             services.AddScoped(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();
-                return client.GetDatabase("search"); // Replace with your database name
+                return client.GetDatabase("search");
             });
 
             // Add Document Service

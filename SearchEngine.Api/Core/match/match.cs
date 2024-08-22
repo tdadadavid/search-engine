@@ -64,6 +64,11 @@ namespace SearchEngine.Api.Match
 
     public class DocMatch
     {
+
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
         [BsonElement("word")]
         public string word { get; set; }
 
