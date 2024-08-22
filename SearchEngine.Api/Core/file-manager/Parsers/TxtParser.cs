@@ -1,16 +1,12 @@
 using System.Threading.Tasks;
-using SearchEngine.Api.Core.FileManager;
+using SearchEngine.Api.Core.Files;
 
 public class TxtFileParser : IFileExtractorEngine
 {
-    public Task Extract(string filePath)
+    public string Extract(FileStream stream)
     {
         // Implementation for extracting text files
         Console.WriteLine("Extracting TXT...");
-        Task task = Task.Run(() =>
-        {
-            Console.WriteLine("Task is running...");
-        });
-    return task;
-    }
+    return "";
+  }
 }

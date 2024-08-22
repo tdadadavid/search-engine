@@ -1,16 +1,15 @@
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Packaging;
-using SearchEngine.Api.Core.FileManager;
+using SearchEngine.Api.Core.Files;
 
 
 public class PPTXFileParser : IFileExtractorEngine
 {
-    public Task Extract(string filePath)
+    public string Extract(FileStream stream)
     {
       Console.WriteLine("Extracting PPTX...");
-      Task task = Task.Run(() =>
-      {
-          using (PresentationDocument presentationDocument = PresentationDocument.Open(filePath, false))
+      
+      using (PresentationDocument presentationDocument = PresentationDocument.Open(stream, false))
       {
           var text = "";
           var slideParts = presentationDocument!.PresentationPart!.SlideParts;
@@ -20,7 +19,6 @@ public class PPTXFileParser : IFileExtractorEngine
           }
           return text;
       }
-      });
-      return task;
+
     }
 }

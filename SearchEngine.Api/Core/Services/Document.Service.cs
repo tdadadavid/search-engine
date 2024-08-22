@@ -5,17 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using SearchEngine.Contexts;
 using SearchEngine.Api.Core.Interfaces;
+using SearchEngine.Api.Core.Files;
+using System.Linq;
 
 namespace SearchEngine.Api.Core.Services
 {
     public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
+    private readonly FileManager _fileManager;
 
-        public DocumentService(MongoDBContext context)
+    public DocumentService(MongoDBContext context, FileManager fileManager)
         {
             _context = context;
-        }
+      _fileManager = fileManager;
+    }
 
         public async Task AddDocumentAsync(Document document)
         {
@@ -45,8 +49,10 @@ namespace SearchEngine.Api.Core.Services
 
             foreach (var document in unIndexedDocuments)
             {
+                var nonStopWords = _fileManager.RemoveStopWordsAndPunctuation(document.Content.ToString());
+
                 // Get base words from document (assumed to be provided by an external algorithm)
-                var baseWords = await GetBaseWordsFromDocument(document);
+                var baseWords = GetBaseWordsFromDocument(nonStopWords);
 
                 foreach (var word in baseWords)
                 {
@@ -80,12 +86,13 @@ namespace SearchEngine.Api.Core.Services
             }
         }
 
-
-        public async Task<List<string>> GetBaseWordsFromDocument(Document document)
+        // Simulated method to extract base words (assumed to be provided)
+        private List<string> GetBaseWordsFromDocument(string[] content)
         {
+      // Assume this method returns a list of base words
+      return content.ToList(); // Replace with actual implementation
+    }
 
-            return document.Content;
-        }
 
         public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
         {
