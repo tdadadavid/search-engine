@@ -3,28 +3,31 @@ using DocumentFormat.OpenXml.Packaging;
 using Quartz.Util;
 using SearchEngine.Models;
 using MongoDB.Driver;
+using SearchEngine.Api.Core.Services;
+using SearchEngine.Api.Core.Interfaces;
 
 
 namespace SearchEngine.Api.Core.Files
 {
   public class FileManager {
 
-    // get document 
+    // get document
     // get read all the words in the document
     // clean the data by removing stop words and punctuations.
     // using the lemmanization library get base words
     // store in the database.
 
-    private IMongoCollection<Document> _documentCollection;
+    private DocumentService _documentService;
+
     private readonly IServiceProvider _serviceProvider;
   public FileManager(IServiceProvider serviceProvider) {
       _serviceProvider = serviceProvider;
-    } 
+    }
 
-  
-    public readonly HashSet<string> stopWords = LoadStopWords("../helpers/stopword.txt");
 
-    public 
+    public readonly HashSet<string> stopWords = LoadStopWords("/home/king/Desktop/personal/search/SearchEngine.Api/Core/helpers/stopword.txt");
+
+    public
 
     static HashSet<string> LoadStopWords(string stopWordsFilePath)
     {
@@ -34,7 +37,7 @@ namespace SearchEngine.Api.Core.Files
     public void ReadDocumentContents(Document document, FileStream stream){
       using (var scope = _serviceProvider.CreateScope())
         {
-            _documentCollection = (IMongoCollection<Document>)scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+            _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
             var parser = GetParser(document.Type);
             // get documet from cloudinary 
             Task.Run(() =>
@@ -44,7 +47,7 @@ namespace SearchEngine.Api.Core.Files
 
               // Define the update operation
               var update = Builders<Document>.Update.Set("Content", document.Content);
-              _documentCollection.UpdateOneAsync(filter, update);
+              _documentService.UpdateOneAsync(filter, update);
             });
             // Use the db instance here
         }
@@ -79,7 +82,7 @@ namespace SearchEngine.Api.Core.Files
 
     private static IFileExtractorEngine GetParser(string ext) {
       // this is an hard-coded files that are supported by our system as we support more we can move this to the database.
-      
+
       var extensionExtractorsRegistry = new Dictionary<string, IFileExtractorEngine>
         {
             { "application/pdf", new PPTXFileParser() },

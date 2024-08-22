@@ -29,23 +29,26 @@ namespace SearchEngine
         public void ConfigureServices(IServiceCollection services)
         {
             // Configure MongoDB settings
-            services.Configure<MongoDBSettings>(Configuration.GetSection("ConnectionStrings:MongoDb"));
+            services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDBSettings"));
 
             // Add MongoDBContext
             services.AddSingleton<MongoDBContext>();
             services.AddSingleton<CloudStoreManager>();
             services.AddSingleton<FileManager>();
+      services.AddSingleton<DocumentService>();
 
-            services.AddSingleton<IMongoClient, MongoClient>(sp =>
+      services.AddSingleton<IMongoClient, MongoClient>(sp =>
             {
-                var connectionString = Configuration.GetConnectionString("MongoDb");
-                return new MongoClient(connectionString);
+                // var connectionString = Configuration.GetConnectionString("MongoDBSettings:ConnectionString");
+                return new MongoClient("mongodb://localhost:27017/NebularFinder");
+        //          var mongoDBSettings = sp.GetRequiredService<MongoDBSettings>();
+        // return new MongoClient(mongoDBSettings.ConnectionString);
             });
 
             services.AddScoped(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();
-                return client.GetDatabase("search"); // Replace with your database name
+                return client.GetDatabase("search");
             });
 
             // Add Document Service
@@ -69,12 +72,15 @@ namespace SearchEngine
             services.AddSingleton<DocumentIndexingJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(DocumentIndexingJob),
-                cronExpression: "0 0/5 * * * ?")); // Every 5 minutes
+                cronExpression: "0/5 * * * * ?"));
             services.AddHostedService<CronService>();
             services.Configure<FormOptions>(options =>
             {
               options.MultipartBodyLengthLimit = 52428800;
             });
+
+
+            services.AddScoped<IDocumentService, DocumentService>();
 
             // Add MVC controllers
             services.AddControllers();
@@ -84,7 +90,8 @@ namespace SearchEngine
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                     app.UseStaticFiles();
+       app.UseDeveloperExceptionPage();
             }
 
             app.UseRouting();

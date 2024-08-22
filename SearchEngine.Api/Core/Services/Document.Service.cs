@@ -3,11 +3,11 @@ using MongoDB.Driver;
 using SearchEngine.Contexts;
 using SearchEngine.Api.Core.Interfaces;
 using SearchEngine.Api.Core.Files;
-using System.Linq;
+
 
 namespace SearchEngine.Api.Core.Services
 {
-    public class DocumentService: IDocumentService
+  public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
     private readonly FileManager _fileManager;
@@ -16,6 +16,10 @@ namespace SearchEngine.Api.Core.Services
         {
             _context = context;
             _fileManager = fileManager;
+    }
+
+    public void UpdateOneAsync(FilterDefinition<Document> filter, UpdateDefinition<Document> update) {
+      _context.Documents.UpdateOneAsync(filter, update);
     }
 
         public async Task AddDocumentAsync(Document document)
@@ -28,7 +32,7 @@ namespace SearchEngine.Api.Core.Services
             return await _context.Documents.Find(d => !d.IsIndexed).ToListAsync();
         }
 
-        public async Task UpdateDocumentIndexStatus(string docId)
+        public async Task UpdateDocumentIndexStatusAsync(string docId)
         {
             var filter = Builders<Document>.Filter.Eq(d => d.ID, docId);
             var update = Builders<Document>.Update.Set(d => d.IsIndexed, true);
@@ -38,6 +42,10 @@ namespace SearchEngine.Api.Core.Services
         public async Task IndexDocumentsAsync()
         {
             // Fetch unindexed documents
+            Console.WriteLine("Na Cronjob in c#");
+            Console.WriteLine("Moral lesson , anytime you have a problem, leave it then solve am for night!");
+
+
             var unIndexedDocuments = await GetUnIndexedDocumentsAsync();
 
             foreach (var document in unIndexedDocuments)
@@ -59,7 +67,7 @@ namespace SearchEngine.Api.Core.Services
                     var allDocuments = await _context.Documents.Find(_ => true).ToListAsync();
                     foreach (var doc in allDocuments)
                     {
-                        var positions = GetWordPositionsInDocument(doc.Content, word);
+                        var positions = await GetWordPositionsInDocument(doc.Content, word);
                         if (positions.Any())
                         {
                             wordMatch.Matches.Add(new Match
@@ -75,19 +83,19 @@ namespace SearchEngine.Api.Core.Services
                 }
 
                 // Mark document as indexed
-                await UpdateDocumentIndexStatus(document.ID);
+                await UpdateDocumentIndexStatusAsync(document.ID);
             }
         }
 
-        // Simulated method to extract base words (assumed to be provided)
+
         private List<string> GetBaseWordsFromDocument(string[] content)
         {
-      // Assume this method returns a list of base words
-      return content.ToList(); // Replace with actual implementation
+
+      return content.ToList();
     }
 
-        // Method to get positions of a word in the document content
-        private List<int> GetWordPositionsInDocument(List<string> content, string word)
+
+        public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
         {
             var positions = new List<int>();
             for (int i = 0; i < content.Count; i++)
@@ -99,5 +107,26 @@ namespace SearchEngine.Api.Core.Services
             }
             return positions;
         }
+
+    public Task<List<string>> GetBaseWordsFromDocument(Document document)
+    {
+      throw new NotImplementedException();
     }
+
+    public async Task<List<WordIndexer>> GetWordMatchesAsync(List<string> words)
+    {
+        var matches = new List<WordIndexer>();
+        foreach (var word in words)
+        {
+            var match = await _context.WordIndexer.Find(w => w.Word == word).FirstOrDefaultAsync();
+            if (match != null)
+            {
+                matches.Add(match);
+            }
+        }
+        return matches;
+    }
+  }
+
+    
 }

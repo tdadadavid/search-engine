@@ -5,27 +5,27 @@ using System.Threading.Tasks;
 using SearchEngine.Api.Core.Services;
 using MongoDB.Driver;
 using SearchEngine.Models;
-
 using SearchEngine.Api.Core.Files;
 
 
 namespace SearchEngine.Api.Controllers { }
-  
+
 
   [Route("/api/documents")]
   [ApiController]
   public class DocumentUploader: ControllerBase {
   private readonly CloudStoreManager _cloudStore;
-  private readonly IMongoCollection<Document> _documentCollection;
+  private readonly DocumentService _documentService;
   private readonly FileManager _fileManager;
   public DocumentUploader(
-    CloudStoreManager cloudStoreManager, 
-    IMongoDatabase database,
+    CloudStoreManager cloudStoreManager,
+    DocumentService documentService,
     FileManager manager
     ) {
     _cloudStore = cloudStoreManager;
-    _documentCollection = database.GetCollection<Document>("Documents");
     _fileManager = manager;
+    _documentService = documentService;
+
   }
 
 
@@ -64,10 +64,24 @@ namespace SearchEngine.Api.Controllers { }
     };
 
     // await _documentCollection.InsertOneAsync(doc);
+    await _documentService.AddDocumentAsync(doc);
 
     _fileManager.ReadDocumentContents(doc, stream);
 
 
     return Ok(new { document = doc });
+  }
+
+
+  [HttpPost("search")]
+  public async Task<IActionResult> SearchEngine([FromBody] string query){
+
+    List<string> cleanedQuery = _fileManager.RemoveStopWordsAndPunctuation(query).ToList();
+
+    var matches = await  _documentService.GetWordMatchesAsync(cleanedQuery);
+
+
+    return Ok(new { matches });
+
   }
 }
