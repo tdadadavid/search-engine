@@ -3,31 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace match
 {
-    class Match
-    {
-        //Use main function to test Matching
-        public static void Main(string[] args)
-        {
-            string path = @"C:\Users\USER\Documents\example.json";
-            string file = File.ReadAllText(path);
-            List<DocMatch> myJson = JsonSerializer.Deserialize<List<DocMatch>>(file);
-            Console.WriteLine(myJson[1].word);
-            myJson[1].matches = new DocResult().Rank(myJson[1].matches);
-            foreach (MatchList item in new DocResult().RankAll(myJson))
-            {
-                Console.WriteLine($"{item.id,15}: {item.freq}");
-            }
-        }
-    }
-
     class DocResult
     {
-
+        //Ranks the list of matches and returns a MatchList sorted in Descending Order (Largest comes first)
         public List<MatchList> Rank(List<MatchList> res)
         {
             return res.OrderByDescending(item => (item.freq * 0.7) + (item.proxScore * 0.3)).ToList();
         }
 
+        //Parses all words and matches into a single easy to rank form
         public List<MatchList> RankAll(List<DocMatch> res)
         {
             List<MatchList> aggregate = res.SelectMany(items => items.matches)
@@ -43,6 +27,7 @@ namespace match
             return Rank(aggregate);
         }
 
+        //Gets the proximity score of words in a Doc
         private static double CalcProximityScore(List<int> positions)
         {
             if (positions.Count <= 1)
@@ -74,7 +59,7 @@ namespace match
 
     public class MatchList
     {
-        [JsonPropertyName("docid")]
+        [JsonPropertyName("docId")]
         public string id { get; set; }
         [JsonPropertyName("positions")]
         public List<int> pos { get; set; }
