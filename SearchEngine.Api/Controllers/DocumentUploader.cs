@@ -43,31 +43,32 @@ namespace SearchEngine.Api.Controllers { }
     var filePath = Path.GetTempFileName();
 
     FileStream stream;
+    Document doc;
     using (stream = new FileStream(filePath, FileMode.Create))
     {
       file.CopyTo(stream);
+
+
+      var uploadParams = new CloudinaryDotNet.Actions.RawUploadParams()
+      {
+        File = new CloudinaryDotNet.FileDescription(filePath),
+        PublicId = Path.GetFileNameWithoutExtension(file.FileName)
+      };
+
+      var uploadResult = _cloudStore.UploadFileToCloudinary(uploadParams);
+
+      doc = new Document
+      {
+        Url = uploadResult,
+        IsIndexed = false,
+        Type = FileManager.GetFileType(file.FileName)
+      };
+
+      // await _documentCollection.InsertOneAsync(doc);
+      await _documentService.AddDocumentAsync(doc);
+
+      await _fileManager.ReadDocumentContents(doc, stream);
     }
-
-    var uploadParams = new CloudinaryDotNet.Actions.RawUploadParams()
-    {
-      File = new CloudinaryDotNet.FileDescription(filePath),
-      PublicId = Path.GetFileNameWithoutExtension(file.FileName)
-    };
-
-    var uploadResult = _cloudStore.UploadFileToCloudinary(uploadParams);
-
-    var doc = new Document
-    {
-      Url = uploadResult,
-      IsIndexed = false,
-      Type = FileManager.GetFileType(file.FileName)
-    };
-
-    // await _documentCollection.InsertOneAsync(doc);
-    await _documentService.AddDocumentAsync(doc);
-
-    _fileManager.ReadDocumentContents(doc, stream);
-
 
     return Ok(new { document = doc });
   }

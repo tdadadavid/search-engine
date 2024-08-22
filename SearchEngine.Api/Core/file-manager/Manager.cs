@@ -34,27 +34,29 @@ namespace SearchEngine.Api.Core.Files
         return new HashSet<string>(File.ReadAllLines(stopWordsFilePath));
     }
 
-    public void ReadDocumentContents(Document document, FileStream stream){
+    public  async Task ReadDocumentContents(Document document, FileStream stream){
       using (var scope = _serviceProvider.CreateScope())
         {
             _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
-            var parser = GetParser(document.Type);
-            // get documet from cloudinary 
-            Task.Run(() =>
-            {
-              var DocumentContents = parser.Extract(stream);
-              var filter = Builders<Document>.Filter.Eq("ID", document.ID);
 
-              // Define the update operation
-              var update = Builders<Document>.Update.Set("Content", document.Content);
-              _documentService.UpdateOneAsync(filter, update);
-            });
-            // Use the db instance here
+          var parser = GetParser(document.Type);
+          var DocumentContents = parser.Extract(stream);
+          var filter = Builders<Document>.Filter.Eq("ID", document.ID);
+          Console.WriteLine($"Contents {DocumentContents}");
+
+          string pattern = @"[\s\p{P}]+";
+        List<string> words = Regex.Split(DocumentContents, pattern).ToList();
+        words = Array.FindAll(words.ToArray(), word => !string.IsNullOrWhiteSpace(word)).ToList();
+        Console.WriteLine($"Type {words}");
+
+        var p = this.RemoveStopWordsAndPunctuation(words.ToString());
+        var update = Builders<Document>.Update.Set("Content", words.ToList());
+        _documentService.UpdateOneAsync(filter, update);
         }
       
     }
 
-    public string[] RemoveStopWordsAndPunctuation(string content)
+    public List<string> RemoveStopWordsAndPunctuation(string content)
     {
         string cleanedContent = Regex.Replace(content, @"[^\w\s]", "");
         var words = cleanedContent
@@ -63,7 +65,7 @@ namespace SearchEngine.Api.Core.Files
             .ToArray();
 
       // Return cleaned text
-      return words;
+      return words.ToList();
     }
 
     public static string GetFileType(string fileName)
@@ -85,11 +87,12 @@ namespace SearchEngine.Api.Core.Files
 
       var extensionExtractorsRegistry = new Dictionary<string, IFileExtractorEngine>
         {
-            { "application/pdf", new PPTXFileParser() },
-            { "text/text", new TxtFileParser() },
-            { "text/plain", new TxtFileParser() },
-            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", new DocxFileParser() },
-            { "application/msword", new DocxFileParser() }
+            // { "application/pdf", new PPTXFileParser() },
+            // { "text/text", new TxtFileParser() },
+            // { "text/plain", new TxtFileParser() },
+            // { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", new DocxFileParser() },
+            // { "application/msword", new DocxFileParser() },
+            { ".pdf" , new PDFFileParser() }
             // add pdf parser.
         };
 

@@ -3,6 +3,6 @@ using System.Threading.Tasks;
 namespace SearchEngine.Api.Core.Files
 {
   public interface IFileExtractorEngine {
-    string Extract(FileStream stream);
+    string Extract(Stream stream);
   }
 }

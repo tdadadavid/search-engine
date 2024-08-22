@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 public class DocxFileParser : IFileExtractorEngine
 {
-    public string Extract(FileStream stream)
+    public string Extract(Stream stream)
     {
     // Implementation for extracting DOCX files
       Console.WriteLine("Extracting DOCX...");

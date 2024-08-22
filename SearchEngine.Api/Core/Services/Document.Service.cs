@@ -3,6 +3,8 @@ using MongoDB.Driver;
 using SearchEngine.Contexts;
 using SearchEngine.Api.Core.Interfaces;
 using SearchEngine.Api.Core.Files;
+using Quartz.Impl.Matchers;
+using java.lang;
 
 
 namespace SearchEngine.Api.Core.Services
@@ -32,6 +34,14 @@ namespace SearchEngine.Api.Core.Services
             return await _context.Documents.Find(d => !d.IsIndexed).ToListAsync();
         }
 
+        public async Task<WordIndexer> FindWord(string word){
+          var filter = Builders<WordIndexer>.Filter.Eq("word", word);
+
+      var res = await _context.WordIndexer.Find(filter).FirstOrDefaultAsync();
+      return res;
+
+    }
+
         public async Task UpdateDocumentIndexStatusAsync(string docId)
         {
             var filter = Builders<Document>.Filter.Eq(d => d.ID, docId);
@@ -50,14 +60,31 @@ namespace SearchEngine.Api.Core.Services
 
             foreach (var document in unIndexedDocuments)
             {
-                var nonStopWords = _fileManager.RemoveStopWordsAndPunctuation(document.Content.ToString());
+                // var nonStopWords = _fileManager.RemoveStopWordsAndPunctuation(document.Content.ToString());
 
                 // Get base words from document (assumed to be provided by an external algorithm)
-                var baseWords = GetBaseWordsFromDocument(nonStopWords);
+                var baseWords = GetBaseWordsFromDocument(document.Content);
 
                 foreach (var word in baseWords)
                 {
-                    var wordMatch = new WordIndexer
+                    Console.WriteLine($"BaseWords {word}");
+
+                    var wordFound = await FindWord(word);
+                if (wordFound != null)
+                {
+
+                  await UpdateMatch(wordFound, document);
+                    continue;
+
+          }
+
+
+          // if word is found, 
+          // and we have not indexed it in the document, index it
+          // else update the position in the document.
+
+
+          var wordMatch = new WordIndexer
                     {
                         Word = word,
                         Matches = new List<Match>()
@@ -88,14 +115,13 @@ namespace SearchEngine.Api.Core.Services
         }
 
 
-        private List<string> GetBaseWordsFromDocument(string[] content)
-        {
+      private List<string> GetBaseWordsFromDocument(List<string> content)
+      {
+        return content;
+      }
 
-      return content.ToList();
-    }
 
-
-        public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
+        public Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
         {
             var positions = new List<int>();
             for (int i = 0; i < content.Count; i++)
@@ -105,7 +131,7 @@ namespace SearchEngine.Api.Core.Services
                     positions.Add(i);
                 }
             }
-            return positions;
+            return Task.FromResult(positions);
         }
 
     public Task<List<string>> GetBaseWordsFromDocument(Document document)
@@ -113,12 +139,38 @@ namespace SearchEngine.Api.Core.Services
       throw new NotImplementedException();
     }
 
+    public async Task UpdateMatch (WordIndexer wordIndexer, Document doc){
+
+      var match = new Match
+      {
+        DocId = doc.ID,
+        Positions = await GetWordPositionsInDocument(doc.Content, wordIndexer.Word)
+      };
+
+      if (wordIndexer.Matches == null)
+    {
+        wordIndexer.Matches = new List<Match>();
+    }
+
+      wordIndexer.Matches.Add(match);
+
+      // Define the filter to find the document by its ID
+      var filter = Builders<WordIndexer>.Filter.Eq(wi => wi.Id, wordIndexer.Id);
+
+      // Define the update operation to set the Matches array
+      var update = Builders<WordIndexer>.Update.Set(wi => wi.Matches, wordIndexer.Matches);
+
+      // Perform the update operation
+      await _context.WordIndexer.UpdateOneAsync(filter, update);
+    }
+
     public async Task<List<WordIndexer>> GetWordMatchesAsync(List<string> words)
     {
         var matches = new List<WordIndexer>();
         foreach (var word in words)
         {
-            var match = await _context.WordIndexer.Find(w => w.Word == word).FirstOrDefaultAsync();
+        Console.WriteLine(word);
+        var match = await _context.WordIndexer.Find(w => w.Word == word).FirstOrDefaultAsync();
             if (match != null)
             {
                 matches.Add(match);

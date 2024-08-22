@@ -5,7 +5,7 @@ using SearchEngine.Api.Core.Files;
 
 public class PPTXFileParser : IFileExtractorEngine
 {
-    public string Extract(FileStream stream)
+    public string Extract(Stream stream)
     {
       Console.WriteLine("Extracting PPTX...");
       
