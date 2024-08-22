@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
+using SearchEngine.Models;
 using System.Linq;
 
 namespace match
@@ -8,13 +9,24 @@ namespace match
     class DocResult
     {
         /// <summary>
-        /// Ranks the list of matches and returns a MatchList sorted in Descending Order (Largest comes first)
+        /// Ranks the list of matches and returns a List of Match objects sorted in Descending Order (Largest comes first)
         /// </summary>
-        /// <param name="res">MAtches to be ranked</param>
-        /// <returns>Ranked result</returns>
-        public List<MatchList> Rank(List<MatchList> res)
+        /// <param name="matches">Matches to be ranked</param>
+        /// <returns>Ranked result as a list of Match objects</returns>
+
+        public List<Match> Rank(List<Match> matches)
         {
-            return res.OrderByDescending(item => (item.freq * 0.7) + (item.proxScore * 0.3)).ToList();
+            var rankedMatches = matches
+                .Select(match => new
+                {
+                    Match = match,
+                    Score = (match.Positions.Count * 0.7) + (CalcProximityScore(match.Positions) * 0.3)
+                })
+                .OrderByDescending(x => x.Score)
+                .Select(x => x.Match)
+                .ToList();
+
+            return rankedMatches;
         }
 
         /// <summary>
@@ -22,16 +34,14 @@ namespace match
         /// </summary>
         /// <param name="res">results to be parsed</param>
         /// <returns>Final ranked aggregate</returns>
-        public List<MatchList> RankAll(List<DocMatch> res)
+        public List<Match> RankAll(List<WordIndexer> res)
         {
-            List<MatchList> aggregate = res.SelectMany(items => items.matches)
-                                            .GroupBy(group => group.id)
-                                            .Select(item => new MatchList
+            List<Match> aggregate = res.SelectMany(items => items.Matches)
+                                            .GroupBy(group => group.DocId)
+                                            .Select(item => new Match
                                             {
-                                                id = item.Key,
-                                                pos = item.SelectMany(subItem => subItem.pos).ToList(),
-                                                freq = item.Sum(subItem => subItem.pos.Count),
-                                                proxScore = CalcProximityScore(item.SelectMany(subItem => subItem.pos).ToList())
+                                                DocId = item.Key,
+                                                Positions = item.SelectMany(subItem => subItem.Positions).ToList()
                                             })
                                             .ToList();
             return Rank(aggregate);
@@ -41,7 +51,7 @@ namespace match
         /// Gets the proximity score of words in a Doc
         /// </summary>
         /// <param name="positions">List of positions in Doc</param>
-        /// <returns>Proximity score as a double</returns
+        /// <returns>Proximity score as a double</returns>
         private static double CalcProximityScore(List<int> positions)
         {
             if (positions.Count <= 1)
@@ -58,29 +68,7 @@ namespace match
             double avgScore = score / (positions.Count - 1);
 
             // The smaller the average score, the higher the final proximity score
-            return 1 / avgScore;
+            return avgScore > 0 ? 1 / avgScore : double.MaxValue; // Avoid division by zero
         }
-    }
-
-    public class DocMatch
-    {
-        [BsonElement("word")]
-        public string word { get; set; }
-
-        [BsonElement("matches")]
-        public List<MatchList> matches { get; set; }
-    }
-
-    public class MatchList
-    {
-        [BsonElement("docId")]
-        public string id { get; set; }
-
-        [BsonElement("positions")]
-        public List<int> pos { get; set; }
-
-        public int freq { get; set; }
-
-        public double proxScore;
     }
 }
