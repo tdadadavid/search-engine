@@ -13,23 +13,30 @@ namespace SearchEngine.Api.Controllers { }
 
   [Route("/api/documents")]
   [ApiController]
-  public class DocumentUploader: ControllerBase {
+/// <summary>
+/// Controller for handling document uploads.
+/// </summary>
+public class DocumentUploader: ControllerBase {
   private readonly CloudStoreManager _cloudStore;
-  private readonly DocumentService _documentService;
-  private readonly FileManager _fileManager;
-  public DocumentUploader(
-    CloudStoreManager cloudStoreManager,
-    DocumentService documentService,
-    FileManager manager
-    ) {
-    _cloudStore = cloudStoreManager;
-    _fileManager = manager;
-    _documentService = documentService;
+  private readonly IMongoCollection<Document> _documentCollection;
 
+    // <summary>
+    /// Initializes a new instance of the <see cref="DocumentUploader"/> class.
+    /// </summary>
+    /// <param name="cloudStoreManager">Service for handling cloud storage operations.</param>
+    /// <param name="database">MongoDB database instance for storing documents.</param>
+    public DocumentUploader(CloudStoreManager cloudStoreManager, IMongoDatabase database) {
+    _cloudStore = cloudStoreManager;
+    _documentCollection = database.GetCollection<Document>("Documents");;
   }
 
-
-  [HttpPost("upload")]
+    /// <summary>
+    /// Handles file upload and storage in the cloud and database.
+    /// </summary>
+    /// <param name="file">The file to be uploaded.</param>
+    /// <returns>An <see cref="IActionResult"/> containing the result of the upload operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the uploaded file is null.</exception>
+    [HttpPost("upload")]
   public async Task<IActionResult> Handle([FromForm] IFormFile file)
   {
     if (file == null)
