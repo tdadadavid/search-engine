@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 
-namespace SearchEngine.Api.Core.FileManager
+namespace SearchEngine.Api.Core.Files
 {
   public interface IFileExtractorEngine {
-    Task Extract(string buffer);
+    string Extract(FileStream stream);
   }
 }
