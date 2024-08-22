@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace SearchEngine.Models
 {
-
     public class WordIndexer
 {
     [BsonId]
