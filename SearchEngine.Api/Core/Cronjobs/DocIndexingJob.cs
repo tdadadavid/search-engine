@@ -8,16 +8,22 @@ namespace SearchEngine.CronJobs
 {
     public class DocumentIndexingJob : IJob
     {
-        private readonly IDocumentService _documentService;
 
-        public DocumentIndexingJob(IDocumentService documentService)
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IDocumentService _documentService;
+
+        public DocumentIndexingJob(IServiceProvider serviceProvider, IDocumentService documentService)
         {
-            _documentService = documentService;
-        }
+            _serviceProvider = serviceProvider;
+      _documentService = documentService;
+    }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            await _documentService.IndexDocumentsAsync();
+            using (var scope = _serviceProvider.CreateScope()) {
+        var documentService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
+        await documentService.IndexDocumentsAsync();
+      }
         }
     }
 }

@@ -15,10 +15,11 @@ namespace SearchEngine.Api.Core.Files
     // using the lemmanization library get base words
     // store in the database.
 
-    private readonly IMongoCollection<Document> _documentCollection;
-  public FileManager(IMongoDatabase database) {
-    _documentCollection = database.GetCollection<Document>("Documents");
-  } 
+    private IMongoCollection<Document> _documentCollection;
+    private readonly IServiceProvider _serviceProvider;
+  public FileManager(IServiceProvider serviceProvider) {
+      _serviceProvider = serviceProvider;
+    } 
 
   
     public readonly HashSet<string> stopWords = LoadStopWords("../helpers/stopword.txt");
@@ -31,17 +32,23 @@ namespace SearchEngine.Api.Core.Files
     }
 
     public void ReadDocumentContents(Document document, FileStream stream){
-      var parser = GetParser(document.Type);
-      // get documet from cloudinary 
-      Task.Run(() =>
-      {
-        var DocumentContents = parser.Extract(stream);
-        var filter = Builders<Document>.Filter.Eq("ID", document.ID);
+      using (var scope = _serviceProvider.CreateScope())
+        {
+            _documentCollection = (IMongoCollection<Document>)scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+            var parser = GetParser(document.Type);
+            // get documet from cloudinary 
+            Task.Run(() =>
+            {
+              var DocumentContents = parser.Extract(stream);
+              var filter = Builders<Document>.Filter.Eq("ID", document.ID);
 
-        // Define the update operation
-        var update = Builders<Document>.Update.Set("Content", document.Content);
-        _documentCollection.UpdateOneAsync(filter, update);
-      });
+              // Define the update operation
+              var update = Builders<Document>.Update.Set("Content", document.Content);
+              _documentCollection.UpdateOneAsync(filter, update);
+            });
+            // Use the db instance here
+        }
+      
     }
 
     public string[] RemoveStopWordsAndPunctuation(string content)

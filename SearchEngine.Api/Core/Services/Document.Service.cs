@@ -15,7 +15,7 @@ namespace SearchEngine.Api.Core.Services
     public DocumentService(MongoDBContext context, FileManager fileManager)
         {
             _context = context;
-      _fileManager = fileManager;
+            _fileManager = fileManager;
     }
 
         public async Task AddDocumentAsync(Document document)
