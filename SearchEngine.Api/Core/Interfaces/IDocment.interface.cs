@@ -2,7 +2,7 @@ using SearchEngine.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SearchEngine.Services
+namespace SearchEngine.Api.Core.Interfaces
 {
     public interface IDocumentService
     {

@@ -1,23 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Quartz;
 using Quartz.Spi;
-using System;
 
-namespace SearchEngine.CronJobs
+namespace search.SearchEngine.Api.Core.Cronjobs
 {
-    public class JobFactory : IJobFactory
-    {
-        private readonly IServiceProvider _serviceProvider;
 
-        public JobFactory(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
 
-        public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
-        {
-            return (IJob)_serviceProvider.GetService(bundle.JobDetail.JobType);
-        }
+  public class JobFactory : IJobFactory
+  {
 
-        public void ReturnJob(IJob job) { }
+    private readonly IServiceProvider _serviceProvider;
+
+    public JobFactory(IServiceProvider serviceProvider){
+      _serviceProvider = serviceProvider;
     }
+    public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
+    {
+      //  return Activator.CreateInstance(bundle.JobDetail.JobType) as IJob;
+       return _serviceProvider.GetRequiredService(bundle.JobDetail.JobType) as IJob;
+
+    }
+
+    public void ReturnJob(IJob job)
+    {
+      // throw new NotImplementedException();
+      (job as IDisposable)?.Dispose();
+    }
+  }
 }

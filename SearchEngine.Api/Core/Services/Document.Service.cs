@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using SearchEngine.Contexts;
+using SearchEngine.Api.Core.Interfaces;
 
-namespace SearchEngine.Services
+namespace SearchEngine.Api.Core.Services
 {
-    public class DocumentService : IDocumentService
+    public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
 
@@ -23,13 +24,13 @@ namespace SearchEngine.Services
 
         public async Task<List<Document>> GetUnIndexedDocumentsAsync()
         {
-            return await _context.Documents.Find(d => !d.isIndexed).ToListAsync();
+            return await _context.Documents.Find(d => !d.IsIndexed).ToListAsync();
         }
 
         public async Task UpdateDocumentIndexStatusAsync(string docId)
         {
-            var filter = Builders<Document>.Filter.Eq(d => d.Id, docId);
-            var update = Builders<Document>.Update.Set(d => d.isIndexed, true);
+            var filter = Builders<Document>.Filter.Eq(d => d.ID, docId);
+            var update = Builders<Document>.Update.Set(d => d.IsIndexed, true);
             await _context.Documents.UpdateOneAsync(filter, update);
         }
 
@@ -59,12 +60,12 @@ namespace SearchEngine.Services
                     var allDocuments = await _context.Documents.Find(_ => true).ToListAsync();
                     foreach (var doc in allDocuments)
                     {
-                        var positions = await GetWordPositionsInDocument(doc.content, word);
+                        var positions = await GetWordPositionsInDocument(doc.Content, word);
                         if (positions.Any())
                         {
                             wordMatch.Matches.Add(new Match
                             {
-                                DocId = doc.Id,
+                                DocId = doc.ID,
                                 Positions = positions
                             });
                         }
@@ -75,7 +76,7 @@ namespace SearchEngine.Services
                 }
 
                 // Mark document as indexed
-                await UpdateDocumentIndexStatusAsync(document.Id);
+                await UpdateDocumentIndexStatusAsync(document.ID);
             }
         }
 
@@ -83,7 +84,7 @@ namespace SearchEngine.Services
         public async Task<List<string>> GetBaseWordsFromDocument(Document document)
         {
 
-            return document.content;
+            return document.Content;
         }
 
         public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)

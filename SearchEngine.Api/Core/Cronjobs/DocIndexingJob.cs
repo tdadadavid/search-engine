@@ -1,6 +1,8 @@
 using Quartz;
-using SearchEngine.Services;
 using System.Threading.Tasks;
+using SearchEngine.Api.Core.Services;
+using SearchEngine.Api.Core.Interfaces;
+
 
 namespace SearchEngine.CronJobs
 {
