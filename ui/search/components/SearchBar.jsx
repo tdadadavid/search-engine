@@ -29,8 +29,8 @@ return (
           activeSearch.length > 0 && (
               <div className="absolute top-20 p-4 bg-slate-800 text-white w-full rounded-xl left-1/2 -translate-x-1/2 flex flex-col gap-2">
                   {
-                      activeSearch.map(s => (
-                          <span>{s}</span>
+                      activeSearch.map((s, index) => (
+                          <span key={index}>{s}</span>
                       ))
                   }
               </div>
