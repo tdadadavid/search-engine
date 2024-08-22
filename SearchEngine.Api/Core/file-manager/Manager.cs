@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Packaging;
 using Quartz.Util;
+using SearchEngine.Models;
+using MongoDB.Driver;
 
 
-namespace SearchEngine.Api.Core.FileManager
+namespace SearchEngine.Api.Core.Files
 {
   public class FileManager {
 
@@ -12,6 +14,11 @@ namespace SearchEngine.Api.Core.FileManager
     // clean the data by removing stop words and punctuations.
     // using the lemmanization library get base words
     // store in the database.
+
+    private readonly IMongoCollection<Document> _documentCollection;
+  public FileManager(IMongoDatabase database) {
+    _documentCollection = database.GetCollection<Document>("Documents");
+  } 
 
   
     public readonly HashSet<string> stopWords = LoadStopWords("../helpers/stopword.txt");
@@ -23,12 +30,26 @@ namespace SearchEngine.Api.Core.FileManager
         return new HashSet<string>(File.ReadAllLines(stopWordsFilePath));
     }
 
-    static string[] RemoveStopWordsAndPunctuation(string content, HashSet<string> stopWords)
+    public void ReadDocumentContents(Document document, FileStream stream){
+      var parser = GetParser(document.Type);
+      // get documet from cloudinary 
+      Task.Run(() =>
+      {
+        var DocumentContents = parser.Extract(stream);
+        var filter = Builders<Document>.Filter.Eq("ID", document.ID);
+
+        // Define the update operation
+        var update = Builders<Document>.Update.Set("Content", document.Content);
+        _documentCollection.UpdateOneAsync(filter, update);
+      });
+    }
+
+    public string[] RemoveStopWordsAndPunctuation(string content)
     {
         string cleanedContent = Regex.Replace(content, @"[^\w\s]", "");
         var words = cleanedContent
             .Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries)
-            .Where(word => !stopWords.Contains(word.ToLower()))
+            .Where(word => !this.stopWords.Contains(word.ToLower()))
             .ToArray();
 
       // Return cleaned text
@@ -59,10 +80,10 @@ namespace SearchEngine.Api.Core.FileManager
             { "text/plain", new TxtFileParser() },
             { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", new DocxFileParser() },
             { "application/msword", new DocxFileParser() }
+            // add pdf parser.
         };
 
-      var parser = extensionExtractorsRegistry.TryGetAndReturn(ext);
-      return parser!;
+      return extensionExtractorsRegistry.TryGetAndReturn(ext)!;
     }
   }
 }

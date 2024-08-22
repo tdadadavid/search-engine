@@ -1,17 +1,13 @@
-using SearchEngine.Api.Core.FileManager;
+using SearchEngine.Api.Core.Files;
 using System.Threading.Tasks;
 
 
 public class PDFFileParser : IFileExtractorEngine
 {
-    public Task Extract(string filePath)
+    public string Extract(FileStream stream)
     {
         // Implementation for extracting PDF files
       Console.WriteLine("Extracting PDF...");
-      Task task = Task.Run(() =>
-      {
-          Console.WriteLine("Task is running...");
-      });
-      return task;
-    }
+    return "";
+  }
 }
