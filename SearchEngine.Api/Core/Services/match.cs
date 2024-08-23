@@ -1,29 +1,35 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
 using SearchEngine.Models;
-using System.Linq;
 
 namespace SearchEngine.Api.Core.Services
 {
     class DocResult
     {
+        private readonly DocumentService _documentService;
+        public DocResult(DocumentService documentService) {
+      _documentService = documentService;
+    }
+
         /// <summary>
         /// Ranks the list of matches and returns a List of Match objects sorted in Descending Order (Largest comes first)
         /// </summary>
         /// <param name="matches">Matches to be ranked</param>
         /// <returns>Ranked result as a list of Match objects</returns>
 
-        public List<Match> Rank(List<Match> matches)
+        public List<MatchResult> Rank(List<Match> matches)
         {
             var rankedMatches = matches
                 .Select(match => new
                 {
                     Match = match,
-                    Score = (match.Positions.Count * 0.7) + (CalcProximityScore(match.Positions) * 0.3)
+                    Score = (match.Positions.Count * 0.7) + (CalcProximityScore(match.Positions) * 0.3),
+                    Rank = ((match.Positions.Count * 0.7) + (CalcProximityScore(match.Positions) * 0.3)) * 10,
                 })
                 .OrderByDescending(x => x.Score)
-                .Select(x => x.Match)
+                .Select(x => new MatchResult {
+                  Rank = x.Rank,
+                  DocId = x.Match.DocId,
+                  Link = _documentService.FindDocumentLink(x.Match.DocId)
+                })
                 .ToList();
 
             return rankedMatches;
@@ -34,16 +40,16 @@ namespace SearchEngine.Api.Core.Services
         /// </summary>
         /// <param name="res">results to be parsed</param>
         /// <returns>Final ranked aggregate</returns>
-        public List<Match> RankAll(List<WordIndexer> res)
+        public List<MatchResult> RankAll(List<WordIndexer> res)
         {
             List<Match> aggregate = res.SelectMany(items => items.Matches)
-                                            .GroupBy(group => group.DocId)
-                                            .Select(item => new Match
-                                            {
-                                                DocId = item.Key,
-                                                Positions = item.SelectMany(subItem => subItem.Positions).ToList()
-                                            })
-                                            .ToList();
+                    .GroupBy(group => group.DocId)
+                    .Select(item => new Match
+                    {
+                        DocId = item.Key,
+                        Positions = item.SelectMany(subItem => subItem.Positions).ToList(),
+                    })
+                    .ToList();
             return Rank(aggregate);
         }
 
