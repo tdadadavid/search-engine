@@ -11,55 +11,33 @@ using UglyToad.PdfPig.Content;
 /// </summary>
 namespace SearchEngine.Api.Core.Files {
 public class PDFFileParser : IFileExtractorEngine
-{
-     /// <summary>
+  {
+    /// <summary>
     /// Extracts content from the specified PDF file.
     /// </summary>
     /// <param name="pdfStream">The pdf file stream.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-  public string Extract(Stream pdfStream)
-  {
-    // Implementation for extracting PDF files
-    if (pdfStream == null)
+    public string Extract(Stream pdfStream)
     {
-      throw new ArgumentNullException(nameof(pdfStream));
-    }
+      // Implementation for extracting PDF files
+      ArgumentNullException.ThrowIfNull(pdfStream);
 
-    // Ensure the stream is at the beginning
-    pdfStream.Seek(0, SeekOrigin.Begin);
+      // Ensure the stream is at the beginning
+      pdfStream.Seek(0, SeekOrigin.Begin);
 
-    StringBuilder textBuilder = new StringBuilder();
+      using var pdfDocument = PdfDocument.Open(pdfStream);
+      string text = string.Empty;
 
-      using (var pdfDocument = PdfDocument.Open(pdfStream))
+      foreach (var page in pdfDocument.GetPages())
       {
-        string text = string.Empty;
-
-        foreach (var page in pdfDocument.GetPages())
+        foreach (var word in page.GetWords())
         {
-          // text += " " + page.GetWords();
-          foreach (var word in page.GetWords()) {
-            text += " " + word.Text;
-          }
+          text += word.Text.ToLower();
         }
-
-        // Clean and format text
-//         string cleanedText = CleanText(text);
-
-        return text;
       }
+
+      return text;
     }
-
-   private string CleanText(string text)
-    {
-        // Remove unwanted characters and split on spaces and punctuation
-        string cleanedContent = Regex.Replace(text, @"[^\w\s]", " ");
-        string[] words = Regex.Split(cleanedContent, @"\s+");
-
-        // Join words with a single space for cleaned output
-        return string.Join(" ", words);
-    }
-    }
-
-
+  }
 }
 

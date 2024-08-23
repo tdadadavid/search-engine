@@ -11,8 +11,23 @@ namespace SearchEngine.Models
     {
     [BsonElement("docId")]
     public string DocId { get; set; }
+    
+    [BsonElement("link")]
+    public string DocLink { get; set; }
 
     [BsonElement("positions")]
     public List<int> Positions { get; set; } = new List<int>();
-    }
+    } 
+
+    public class MatchResult
+    {
+      [BsonElement("docId")]
+      public string DocId { get; set; }
+
+      [BsonElement("rank")]
+      public double Rank { get; set; }
+
+      [BsonElement("link")]
+      public string Link { get; set; }
+  }
 }

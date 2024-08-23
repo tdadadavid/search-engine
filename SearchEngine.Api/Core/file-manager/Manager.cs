@@ -5,6 +5,7 @@ using SearchEngine.Models;
 using MongoDB.Driver;
 using SearchEngine.Api.Core.Services;
 using SearchEngine.Api.Core.Interfaces;
+using System.Linq;
 
 
 namespace SearchEngine.Api.Core.Files
@@ -12,7 +13,7 @@ namespace SearchEngine.Api.Core.Files
   /// <summary>
   /// Manages file operations including reading, processing, and storing document contents.
   /// </summary>
-  public class FileManager {
+  public partial class FileManager {
 
     // get document
     // get read all the words in the document
@@ -35,6 +36,7 @@ namespace SearchEngine.Api.Core.Files
 
 
     public readonly HashSet<string> stopWords = LoadStopWords("/home/king/Desktop/personal/search/SearchEngine.Api/Core/helpers/stopword.txt");
+    private static readonly char[] separator = new[] { ' ', '\n', '\r', '\t' };
 
     /// <summary>
     /// Loads stop words from a specified file.
@@ -51,26 +53,25 @@ namespace SearchEngine.Api.Core.Files
     /// </summary>
     /// <param name="document">The document to read and process.</param>
     /// <param name="stream">The stream containing the document's content.</param>
-    public void ReadDocumentContents(Document document, FileStream stream){
-      using (var scope = _serviceProvider.CreateScope())
-        {
-            _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
+    public void ReadDocumentContents(Document document, FileStream stream)
+    {
+      using var scope = _serviceProvider.CreateScope();
+      _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
 
-          var parser = GetParser(document.Type);
-          var DocumentContents = parser.Extract(stream);
-          var filter = Builders<Document>.Filter.Eq("ID", document.ID);
-          Console.WriteLine($"Contents {DocumentContents}");
+      var parser = GetParser(document.Type);
+      var DocumentContents = parser.Extract(stream);
+      var filter = Builders<Document>.Filter.Eq("ID", document.ID);
+      Console.WriteLine($"Contents {DocumentContents}");
 
-          string pattern = @"[\s\p{P}]+";
-        List<string> words = Regex.Split(DocumentContents, pattern).ToList();
-        words = Array.FindAll(words.ToArray(), word => !string.IsNullOrWhiteSpace(word)).ToList();
-        Console.WriteLine($"Type {words}");
+      string pattern = @"[\s\p{P}]+";
+      List<string> words = Regex.Split(DocumentContents, pattern).ToList();
+      words = Array.FindAll(words.ToArray(), word => !string.IsNullOrWhiteSpace(word)).ToList();
+      Console.WriteLine($"Type {words}");
 
-        var p = this.RemoveStopWordsAndPunctuation(words.ToString());
-        var update = Builders<Document>.Update.Set("Content", words.ToList());
-        _documentService.UpdateOneAsync(filter, update);
-        }
-      
+      var p = this.RemoveStopWordsAndPunctuation(string.Join(' ', words));
+      var update = Builders<Document>.Update.Set("Content", words.ToList());
+      _documentService.UpdateOneAsync(filter, update);
+
     }
 
     /// <summary>
@@ -81,17 +82,17 @@ namespace SearchEngine.Api.Core.Files
     public List<string> RemoveStopWordsAndPunctuation(string content)
     {
 
-        string cleanedContent = Regex.Replace(content, @"[^\w\s]", "");
+        string cleanedContent = MyRegex().Replace(content, "");
         Console.WriteLine($"Words: {cleanedContent}");
 
         var words = cleanedContent
-            .Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split(separator, StringSplitOptions.RemoveEmptyEntries)
             .Where(word => !this.stopWords.Contains(word.ToLower()))
             .ToArray();
 
       // Return cleaned text
 
-      return words.ToList();
+      return [.. words];
     }
 
     /// <summary>
@@ -134,5 +135,8 @@ namespace SearchEngine.Api.Core.Files
 
       return extensionExtractorsRegistry.TryGetAndReturn(ext)!;
     }
+
+    [GeneratedRegex(@"[^\w\s]")]
+    private static partial Regex MyRegex();
   }
 }
