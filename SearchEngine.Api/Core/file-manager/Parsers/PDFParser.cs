@@ -5,9 +5,18 @@ using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 
+
+/// <summary>
+/// Represents a file parser that extracts content from PDF files.
+/// </summary>
 namespace SearchEngine.Api.Core.Files {
 public class PDFFileParser : IFileExtractorEngine
 {
+     /// <summary>
+    /// Extracts content from the specified PDF file.
+    /// </summary>
+    /// <param name="pdfStream">The pdf file stream.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
   public string Extract(Stream pdfStream)
   {
     // Implementation for extracting PDF files
@@ -34,13 +43,13 @@ public class PDFFileParser : IFileExtractorEngine
         }
 
         // Clean and format text
-        string cleanedText = CleanText(text);
+//         string cleanedText = CleanText(text);
 
-        return cleanedText;
+        return text;
       }
     }
 
-    private string CleanText(string text)
+   private string CleanText(string text)
     {
         // Remove unwanted characters and split on spaces and punctuation
         string cleanedContent = Regex.Replace(text, @"[^\w\s]", " ");
@@ -49,7 +58,8 @@ public class PDFFileParser : IFileExtractorEngine
         // Join words with a single space for cleaned output
         return string.Join(" ", words);
     }
-}
+    }
+
 
 }
 

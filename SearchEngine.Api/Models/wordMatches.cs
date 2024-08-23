@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace SearchEngine.Models
 {
+    /// <summary>
+    /// Represents a match occurrence of a word in a document.
+    /// </summary>
     public class Match
     {
     [BsonElement("docId")]

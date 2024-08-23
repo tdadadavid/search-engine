@@ -9,6 +9,9 @@ using SearchEngine.Api.Core.Interfaces;
 
 namespace SearchEngine.Api.Core.Files
 {
+  /// <summary>
+  /// Manages file operations including reading, processing, and storing document contents.
+  /// </summary>
   public class FileManager {
 
     // get document
@@ -20,21 +23,35 @@ namespace SearchEngine.Api.Core.Files
     private DocumentService _documentService;
 
     private readonly IServiceProvider _serviceProvider;
-  public FileManager(IServiceProvider serviceProvider) {
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileManager"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider used to resolve dependencies.</param>
+        
+    public FileManager(IServiceProvider serviceProvider) {
       _serviceProvider = serviceProvider;
     }
 
 
     public readonly HashSet<string> stopWords = LoadStopWords("/home/king/Desktop/personal/search/SearchEngine.Api/Core/helpers/stopword.txt");
 
-    public
-
-    static HashSet<string> LoadStopWords(string stopWordsFilePath)
+    /// <summary>
+    /// Loads stop words from a specified file.
+    /// </summary>
+    /// <param name="stopWordsFilePath">The path to the stop words file.</param>
+    /// <returns>A set of stop words.</returns>
+    public static HashSet<string> LoadStopWords(string stopWordsFilePath)
     {
         return new HashSet<string>(File.ReadAllLines(stopWordsFilePath));
     }
 
-    public  async Task ReadDocumentContents(Document document, FileStream stream){
+    /// <summary>
+    /// Reads the contents of a document, processes it, and updates the document in the database.
+    /// </summary>
+    /// <param name="document">The document to read and process.</param>
+    /// <param name="stream">The stream containing the document's content.</param>
+    public void ReadDocumentContents(Document document, FileStream stream){
       using (var scope = _serviceProvider.CreateScope())
         {
             _documentService = (DocumentService)scope.ServiceProvider.GetRequiredService<IDocumentService>();
@@ -56,6 +73,11 @@ namespace SearchEngine.Api.Core.Files
       
     }
 
+    /// <summary>
+    /// Removes stop words and punctuation from the given content.
+    /// </summary>
+    /// <param name="content">The content to clean.</param>
+    /// <returns>An array of words without stop words and punctuation.</returns>    
     public List<string> RemoveStopWordsAndPunctuation(string content)
     {
 
@@ -72,6 +94,11 @@ namespace SearchEngine.Api.Core.Files
       return words.ToList();
     }
 
+    /// <summary>
+    /// Determines the file type based on the file extension.
+    /// </summary>
+    /// <param name="fileName">The name of the file.</param>
+    /// <returns>A string representing the file type.</returns>
     public static string GetFileType(string fileName)
         {
             var extension = Path.GetExtension(fileName).ToLower();
@@ -86,6 +113,11 @@ namespace SearchEngine.Api.Core.Files
             };
         }
 
+    /// <summary>
+    /// Gets the appropriate file parser based on the file extension.
+    /// </summary>
+    /// <param name="ext">The file extension.</param>
+    /// <returns>An instance of <see cref="IFileExtractorEngine"/> for the specified file type.</returns>
     private static IFileExtractorEngine GetParser(string ext) {
       // this is an hard-coded files that are supported by our system as we support more we can move this to the database.
 

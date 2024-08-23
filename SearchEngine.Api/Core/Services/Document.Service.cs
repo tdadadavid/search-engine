@@ -9,12 +9,19 @@ using java.lang;
 
 namespace SearchEngine.Api.Core.Services
 {
-  public class DocumentService: IDocumentService
+    /// <summary>
+    /// Provides services for managing and indexing documents.
+    /// </summary>
+    public class DocumentService: IDocumentService
     {
         private readonly MongoDBContext _context;
     private readonly FileManager _fileManager;
 
-    public DocumentService(MongoDBContext context, FileManager fileManager)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DocumentService"/> class.
+        /// </summary>
+        /// <param name="context">The MongoDB context used for database operations.</param>
+        public DocumentService(MongoDBContext context)
         {
             _context = context;
             _fileManager = fileManager;
@@ -24,16 +31,25 @@ namespace SearchEngine.Api.Core.Services
       _context.Documents.UpdateOneAsync(filter, update);
     }
 
+        /// <summary>
+        /// Adds a document to the database.
+        /// </summary>
+        /// <param name="document">The document to be added.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task AddDocumentAsync(Document document)
         {
             await _context.Documents.InsertOneAsync(document);
         }
 
+        /// <summary>
+        /// Retrieves a list of documents that have not been indexed yet.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of unindexed documents.</returns>
         public async Task<List<Document>> GetUnIndexedDocumentsAsync()
         {
             return await _context.Documents.Find(d => !d.IsIndexed).ToListAsync();
         }
-
+        
         public async Task<WordIndexer> FindWord(string word){
           var filter = Builders<WordIndexer>.Filter.Eq("word", word);
 
@@ -42,6 +58,11 @@ namespace SearchEngine.Api.Core.Services
 
     }
 
+        /// <summary>
+        /// Updates the index status of a document to indicate that it has been indexed.
+        /// </summary>
+        /// <param name="docId">The ID of the document to update.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UpdateDocumentIndexStatusAsync(string docId)
         {
             var filter = Builders<Document>.Filter.Eq(d => d.ID, docId);
@@ -49,6 +70,10 @@ namespace SearchEngine.Api.Core.Services
             await _context.Documents.UpdateOneAsync(filter, update);
         }
 
+        /// <summary>
+        /// Indexes all unindexed documents by extracting base words and storing their occurrences in the database.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task IndexDocumentsAsync()
         {
             // Fetch unindexed documents
@@ -121,7 +146,24 @@ namespace SearchEngine.Api.Core.Services
       }
 
 
-        public Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
+        /// <summary>
+        /// Gets a list of base words extracted from the document's content.
+        /// </summary>
+        /// <param name="document">The document from which base words are extracted.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of base words.</returns>
+        public async Task<List<string>> GetBaseWordsFromDocument(Document document)
+        {
+
+            return document.Content;
+        }
+
+        /// <summary>
+        /// Finds the positions of a specified word within the document's content.
+        /// </summary>
+        /// <param name="content">The list of words representing the document's content.</param>
+        /// <param name="word">The word whose positions are to be found.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of positions where the word is found.</returns>
+        public async Task<List<int>> GetWordPositionsInDocument(List<string> content, string word)
         {
             var positions = new List<int>();
             for (int i = 0; i < content.Count; i++)
