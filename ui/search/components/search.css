@@ -1,0 +1,38 @@
+.form{
+    width: 500px;
+    position: relative;
+}
+
+.input{
+    width: 100%;
+    padding: 1rem;
+    border-radius: 99px;
+    background-color: #1e293b ;
+}
+
+.search {
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    --tw-translate-y: -50%;
+    transform: translate(0px, -50%) rotate(0deg) skewX(0deg) scaleX(1) scaleY(1);
+    padding: 1rem;
+    background-color: #475569;
+    border-radius: 99px;
+}
+
+.suggest {
+    position: absolute;
+    top: 5rem;
+    padding: 1rem;
+    background-color: #1e293b;
+    color: white;
+    width: 100%;
+    border-radius: 0.75rem;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transform: translate(-50%, 0px) rotate(0deg) skewX(0deg) scaleX(1) scaleY(1);
+
+}
