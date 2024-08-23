@@ -11,7 +11,7 @@ public class DocxFileParser : IFileExtractorEngine
     /// </summary>
     /// <param name="filePath">The path to the DOCX file to be extracted.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the extracted text from the DOCX file.</returns>
-    public Task Extract(string filePath)
+    public string Extract(Stream stream)
     {
     // Implementation for extracting DOCX files
       Console.WriteLine("Extracting DOCX...");

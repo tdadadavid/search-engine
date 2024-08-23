@@ -11,7 +11,7 @@ public class TxtFileParser : IFileExtractorEngine
     /// </summary>
     /// <param name="filePath">The path to the TXT file to be extracted.</param>
     /// <returns>A task that represents the asynchronous operation. The result contains the extracted text from the TXT file.</returns>
-    public Task Extract(string filePath)
+    public string Extract(Stream stream)
     {
         // Implementation for extracting text files
         Console.WriteLine("Extracting TXT...");
