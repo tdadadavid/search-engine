@@ -74,10 +74,11 @@ namespace SearchEngine.Api.Controllers { }
   }
 
 
-  [HttpPost("search")]
-  public async Task<IActionResult> SearchEngine([FromBody] string query){
+  [HttpGet("search")]
+  public async Task<IActionResult> SearchEngine([FromQuery(Name = "q")] string query){
+    Console.WriteLine($"Query: {query}");
 
-    List<string> cleanedQuery = _fileManager.RemoveStopWordsAndPunctuation(query).ToList();
+    List<string> cleanedQuery = [.. _fileManager.RemoveStopWordsAndPunctuation(query.ToString())];
 
     var matches = await  _documentService.GetWordMatchesAsync(cleanedQuery);
 

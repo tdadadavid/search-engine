@@ -58,13 +58,17 @@ namespace SearchEngine.Api.Core.Files
 
     public List<string> RemoveStopWordsAndPunctuation(string content)
     {
+
         string cleanedContent = Regex.Replace(content, @"[^\w\s]", "");
+        Console.WriteLine($"Words: {cleanedContent}");
+
         var words = cleanedContent
             .Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries)
             .Where(word => !this.stopWords.Contains(word.ToLower()))
             .ToArray();
 
       // Return cleaned text
+
       return words.ToList();
     }
 

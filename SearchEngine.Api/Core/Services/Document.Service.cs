@@ -169,13 +169,13 @@ namespace SearchEngine.Api.Core.Services
         var matches = new List<WordIndexer>();
         foreach (var word in words)
         {
-        Console.WriteLine(word);
-        var match = await _context.WordIndexer.Find(w => w.Word == word).FirstOrDefaultAsync();
+          Console.WriteLine($"WORDS: {word}");
+          var match = await _context.WordIndexer.Find(w => w.Word == word).FirstOrDefaultAsync();
             if (match != null)
             {
-                matches.Add(match);
+              matches.Add(match);
             }
-        }
+          }
         return matches;
     }
   }
