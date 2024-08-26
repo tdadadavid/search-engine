@@ -37,13 +37,13 @@ namespace SearchEngine.Api.Core.Services
         public List<Match> RankAll(List<WordIndexer> res)
         {
             List<Match> aggregate = res.SelectMany(items => items.Matches)
-                                            .GroupBy(group => group.DocId)
-                                            .Select(item => new Match
-                                            {
-                                                DocId = item.Key,
-                                                Positions = item.SelectMany(subItem => subItem.Positions).ToList()
-                                            })
-                                            .ToList();
+                                        .GroupBy(group => group.DocId)
+                                        .Select(item => new Match
+                                        {
+                                            DocId = item.Key,
+                                            Positions = item.SelectMany(subItem => subItem.Positions).ToList()
+                                        })
+                                        .ToList();
             return Rank(aggregate);
         }
 
