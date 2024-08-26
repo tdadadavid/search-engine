@@ -2,8 +2,8 @@
 
 export default function Page(){
     return(
-        <main>
-            <form className="mx-auto my-5 p-4 max-w-[500px] bg-slate-800 rounded">
+        <main className="">
+            <form className="mx-auto my-32 p-4 max-w-[500px] bg-slate-800 rounded">
                 <label htmlFor="doc" className="block text-center font-bold hover:cursor-pointer pb-4">Select Document for Upload</label>
                 <input id="doc" type="file" name="doc" className="hover:cursor-pointer block m-auto bg-slate-600 px-3 py-1"/>
 
