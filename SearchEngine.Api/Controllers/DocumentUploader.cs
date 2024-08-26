@@ -13,30 +13,23 @@ namespace SearchEngine.Api.Controllers { }
 
   [Route("/api/documents")]
   [ApiController]
-/// <summary>
-/// Controller for handling document uploads.
-/// </summary>
-public class DocumentUploader: ControllerBase {
+  public class DocumentUploader: ControllerBase {
   private readonly CloudStoreManager _cloudStore;
-  private readonly IMongoCollection<Document> _documentCollection;
-
-    // <summary>
-    /// Initializes a new instance of the <see cref="DocumentUploader"/> class.
-    /// </summary>
-    /// <param name="cloudStoreManager">Service for handling cloud storage operations.</param>
-    /// <param name="database">MongoDB database instance for storing documents.</param>
-    public DocumentUploader(CloudStoreManager cloudStoreManager, IMongoDatabase database) {
+  private readonly DocumentService _documentService;
+  private readonly FileManager _fileManager;
+  public DocumentUploader(
+    CloudStoreManager cloudStoreManager,
+    DocumentService documentService,
+    FileManager manager
+    ) {
     _cloudStore = cloudStoreManager;
-    _documentCollection = database.GetCollection<Document>("Documents");;
+    _fileManager = manager;
+    _documentService = documentService;
+
   }
 
-    /// <summary>
-    /// Handles file upload and storage in the cloud and database.
-    /// </summary>
-    /// <param name="file">The file to be uploaded.</param>
-    /// <returns>An <see cref="IActionResult"/> containing the result of the upload operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the uploaded file is null.</exception>
-    [HttpPost("upload")]
+
+  [HttpPost("upload")]
   public async Task<IActionResult> Handle([FromForm] IFormFile file)
   {
     if (file == null)
@@ -50,45 +43,48 @@ public class DocumentUploader: ControllerBase {
     var filePath = Path.GetTempFileName();
 
     FileStream stream;
+    Document doc;
     using (stream = new FileStream(filePath, FileMode.Create))
     {
       file.CopyTo(stream);
+
+
+      var uploadParams = new CloudinaryDotNet.Actions.RawUploadParams()
+      {
+        File = new CloudinaryDotNet.FileDescription(filePath),
+        PublicId = Path.GetFileNameWithoutExtension(file.FileName)
+      };
+
+      var uploadResult = _cloudStore.UploadFileToCloudinary(uploadParams);
+
+      doc = new Document
+      {
+        Url = uploadResult,
+        IsIndexed = false,
+        Type = FileManager.GetFileType(file.FileName)
+      };
+
+      // await _documentCollection.InsertOneAsync(doc);
+      await _documentService.AddDocumentAsync(doc);
+
+      _fileManager.ReadDocumentContents(doc, stream);
     }
-
-    var uploadParams = new CloudinaryDotNet.Actions.RawUploadParams()
-    {
-      File = new CloudinaryDotNet.FileDescription(filePath),
-      PublicId = Path.GetFileNameWithoutExtension(file.FileName)
-    };
-
-    var uploadResult = _cloudStore.UploadFileToCloudinary(uploadParams);
-
-    var doc = new Document
-    {
-      Url = uploadResult,
-      IsIndexed = false,
-      Type = FileManager.GetFileType(file.FileName)
-    };
-
-    // await _documentCollection.InsertOneAsync(doc);
-    await _documentService.AddDocumentAsync(doc);
-
-    _fileManager.ReadDocumentContents(doc, stream);
-
 
     return Ok(new { document = doc });
   }
 
 
-  [HttpPost("search")]
-  public async Task<IActionResult> SearchEngine([FromBody] string query){
+  [HttpGet("search")]
+  public async Task<IActionResult> SearchEngine([FromQuery(Name = "q")] string query){
+    Console.WriteLine($"Query: {query}");
 
-    List<string> cleanedQuery = _fileManager.RemoveStopWordsAndPunctuation(query).ToList();
+    List<string> cleanedQuery = [.. _fileManager.RemoveStopWordsAndPunctuation(query.ToString())];
 
     var matches = await  _documentService.GetWordMatchesAsync(cleanedQuery);
 
+    var result = new DocResult(_documentService).RankAll(matches);
 
-    return Ok(new { matches });
+    return Ok(new { result });
 
   }
 }

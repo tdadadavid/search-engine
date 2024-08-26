@@ -6,23 +6,19 @@ using System.Threading.Tasks;
 /// </summary>
 public class DocxFileParser : IFileExtractorEngine
 {
-    /// <summary>
-    /// Extracts text content from a DOCX file located at the specified file path.
-    /// </summary>
-    /// <param name="filePath">The path to the DOCX file to be extracted.</param>
-    /// <returns>A task representing the asynchronous operation. The task result contains the extracted text from the DOCX file.</returns>
-    public Task Extract(string filePath)
-    {
+  /// <summary>
+  /// Extracts text content from a DOCX file located at the specified file path.
+  /// </summary>
+  /// <param name="filePath">The path to the DOCX file to be extracted.</param>
+  /// <returns>A task representing the asynchronous operation. The task result contains the extracted text from the DOCX file.</returns>
+  public string Extract(Stream stream)
+  {
     // Implementation for extracting DOCX files
-      Console.WriteLine("Extracting DOCX...");
-
-      Task task = Task.Run(() =>
-      {
-          using (WordprocessingDocument doc = WordprocessingDocument.Open(filePath, false))
-          {
-            return doc.MainDocumentPart!.Document!.Body!.InnerText;
-          }
-      });
+    Console.WriteLine("Extracting DOCX...");
+    {
+      using WordprocessingDocument doc = WordprocessingDocument.Open(stream, false);
+      return doc.MainDocumentPart!.Document!.Body!.InnerText;
 
     }
+  }
 }

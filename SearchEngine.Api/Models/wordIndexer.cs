@@ -23,18 +23,3 @@ namespace SearchEngine.Models
 }
 
 }
-
-
-
-// public class WordMatch
-// {
-//     [BsonId]
-//     [BsonRepresentation(BsonType.ObjectId)]
-//     public string Id { get; set; }
-
-//     [BsonElement("word")]
-//     public string Word { get; set; }
-
-//     [BsonElement("matches")]
-//     public List<Match> Matches { get; set; }
-// }

@@ -6,8 +6,9 @@ namespace SearchEngine.Api.Core.Files
     /// <summary>
     /// Extracts content from the file located at the specified path.
     /// </summary>
-    /// <param name="filePath">The path to the file to be extracted.</param>
+    /// <param name="stream">The file stream</param>
     /// <returns>A task representing the asynchronous extraction operation.</returns>
-    Task Extract(string buffer);
+    string Extract(Stream stream);
+    
   }
 }
